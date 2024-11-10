@@ -1,0 +1,128 @@
+%% This is file `stocksize-doc.text',
+%%
+%% Copyright (C) 2024 by João Lourenço <joao.lourenco@fct.unl.pt>
+%%
+%% This file may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.3c of this license
+%% or (at your option) any later version. The latest version of this
+%% license is in:
+%%
+%%    http://www.latex-project.org/lppl.txt
+%%
+%% and version 1.3c or later is part of all distributions of LaTeX
+%% version 2006/05/20 or later.
+%%
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{kantlipsum}
+\usepackage{booktabs}
+\usepackage[colorlinks=true,allcolors=blue]{hyperref}
+\usepackage{stocksize}
+
+
+\newcommand{\printpagesize}[1][]{%
+  \par\ifx&#1&\else
+    The dimensions given for this page were: #1.
+  \fi
+  
+  \par\bigskip\noindent This page's dimensions in pt are:\medskip
+  
+  \begin{tabular}{lll}
+    \toprule
+                    & \textbf{height}   & \textbf{width}    \\
+    \midrule
+    \textbf{paper}  & \the\paperheight  & \the\paperwidth   \\
+    \textbf{stock}  & \the\stockheight  & \the\stockwidth   \\    
+    \bottomrule
+  \end{tabular}\par\bigskip
+}
+
+
+\begin{document}
+  \title{The \textsf{\filename} package}
+  \author{João M. Lourenço\\\url{https://github.com/joaomlourenco/stocksize}}
+  \date{\filedate\ (v\fileversion)}
+  
+  \maketitle
+  
+  \begin{abstract}
+    This package provides a flexible and easy interface to paper (stock) dimensions.
+    Multiple user defined stock sizes are allowed in the same document, and sock sizes can be nested.
+  \end{abstract}
+  
+\section{Introduction}
+  
+  The package 
+    \href{https://github.com/davidcarlisle/geometry}{geometry} 
+is excellent for customuzing the page layout.  However, changing the page size in the middle of the document changes the typing area, but does not affect the real paper (sock) size.  This package ains to circunvent this situation.
+
+\section{User Interface}
+  
+\subsection{Loading the Package}
+  
+  Simply load the package with (with no options):
+  
+  \begin{verbatim}
+    \usepackage{stocksize}
+  \end{verbatim}
+  
+\subsection{Starting a new Page With a Different Page/Stock Size}
+  
+  To start a new page with a different page/stock size, use the \verb!newstocksize! environment:
+  
+  \begin{verbatim}
+    \begin{newstocksize}[options]{height}{width}
+      Your contents here
+    \end{newstocksize}
+  \end{verbatim}
+  
+  The \texttt{options} given to \texttt{newstocksize} will be passed to the \verb!\newgeometry! command from the \texttt{geometry} package.
+    
+\subsection{Nesting Different Page/Stock Sizes}
+  
+  Multiple paper/stock sizes can be nested.  When the \verb!newstocksize! environment, the previous size is resmued.
+  
+  \begin{verbatim}
+  This page has the default size  (e.g., a4paper).
+
+  \begin{newstocksize}[margin=0pt]{10cm}{8cm}
+    This page size is 10cm by 8cm.
+    
+    \begin{newstocksize}[margin=0pt]{5cm}{15cm}
+      This page size is 5cm by 15cm.
+    \end{newstocksize}
+
+    Resuming the page size to 10cm by 8cm.
+  \end{newstocksize}
+
+  \noindent Resuming the default paper size and margins!
+  This page size is back to the default page size (e.g., a4paper).
+  \end{verbatim}
+  
+  
+\section{Example of Multiple Stock Size Pages}
+  
+  \printpagesize
+  \kant[1]
+  Changing to \verb+{10cm}{8cm}+!
+
+  \begin{newstocksize}[margin=0pt]{10cm}{8cm}
+    \printpagesize[10cm, 8cm]
+    \kant[2]
+    Changing to \verb+{5cm}{15cm}+!
+
+    \begin{newstocksize}[margin=0pt]{5cm}{15cm}
+    \printpagesize[5cm, 15cm]
+    \kant[3]
+    \end{newstocksize}
+
+    \printpagesize[10cm, 8cm]
+    \kant[4]
+  \end{newstocksize}
+
+  \noindent Resuming the default paper size and margins!
+  \printpagesize
+  \kant[5]
+  
+\end{document}
