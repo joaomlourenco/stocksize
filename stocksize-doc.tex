@@ -60,7 +60,7 @@ is excellent for customuzing the page layout.  However, changing the page size i
 
 \section{User Interface}
   
-\subsection{Loading the Package}
+\subsection{Loading the package}
   
   Simply load the package with (with no options):
   
@@ -68,7 +68,7 @@ is excellent for customuzing the page layout.  However, changing the page size i
     \usepackage{stocksize}
   \end{verbatim}
   
-\subsection{Starting a new Page With a Different Page/Stock Size}
+\subsection{Starting a new page with a different page/stock size}
   
 To start a new page with a different page/stock size use the \verb!\newstocksize! and \verb!restorestocksize! commands.
   
@@ -77,9 +77,9 @@ To start a new page with a different page/stock size use the \verb!\newstocksize
     \item[] \verb!restorestocksize! — This command ends trhe current stock size and restores the previous one (in a LIFO fashion).
   \end{description}
       
-\subsection{Nesting Different Page/Stock Sizes}
+\subsection{Nesting different page/stock sizes}
   
-  Multiple paper/stock sizes can be nested.  When the \verb!newstocksize! environment, the previous size is resmued.
+  Multiple paper/stock sizes can be nested.  With each \verb!\restorestocksize! command, the previous size is resmued.
   
   \begin{verbatim}
   This page has the default size  (e.g., a4paper).
@@ -99,7 +99,7 @@ To start a new page with a different page/stock size use the \verb!\newstocksize
   \end{verbatim}
   
   
-\section{Example of Multiple Stock Size Pages}
+\section{Example of multiple stock size pages}
 
   % inital (21.0cm x 29.7cm)
   \printpagesize
