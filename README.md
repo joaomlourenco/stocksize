@@ -13,7 +13,8 @@ Multiple user defined stock sizes are allowed in the same document, and sock siz
 
 ## Introduction
 
-The package [geometry](https://github.com/LaTeX-Package-Repositories/geometry) is excellent for customuzing the page layout. However, changing the page size in the middle of the document changes the typing area, but does not affect the real paper (sock) size. This package ains to circunvent this situation.
+The package [geometry](https://github.com/LaTeX-Package-Repositories/geometry) is excellent for customuzing the page layout.  However, changing the page size in the middle of the document only changes the typing area and does not affect the real paper (sock) size.  This package circunvents this situation, by resizing the paper (stock) size to the given size.
+
 
 ## User Interface
 
@@ -26,32 +27,28 @@ Simply load the package with (with no options):
 
 ### Starting a new Page With a Different Page/Stock Size
 
-To start a new page with a different page/stock size, use the newstocksize environment:
+To start a new page with a different page/stock size use the \verb!\newstocksize! and \verb!restorestocksize! commands.
 ```latex
-\begin(newstocksize}[options]{height}{width}
-Your contents here
-\end (newstocksize}
+\newstocksize{options}! — This command starts a new stock (and paper) size.  The `options` are passed straight to the \newgeometry command form the `geometry` package.
+\restorestocksize — This command ends trhe current stock size and restores the previous one (in a LIFO fashion).
 ```
-
-The options given to `newstocksize` will be passed to the `\newgeometry` command from the `geometry` package.
 
 ### Nesting Different Page/Stock Sizes
   
-  Multiple paper/stock sizes can be nested.  When the \verb!newstocksize! environment, the previous size is resmued.
+  Multiple paper/stock sizes can be nested.  With each `\restorestocksize` command, the previous size is resmued.
   
 ```latex
   This page has the default size  (e.g., a4paper).
 
-  \begin{newstocksize}[margin=0pt]{10cm}{8cm}
-    This page size is 10cm by 8cm.
+    \newstocksize[margin=0pt]{layoutsize={15cm,10cm},margin=1.5cm}
+    This page size is 15cm wide x 10cm high, with margins of 1.5cm.
     
-    \begin{newstocksize}[margin=0pt]{5cm}{15cm}
-      This page size is 5cm by 15cm.
-    \end{newstocksize}
+      \newstocksize{layoutsize={20cm,20cm},margin=4.0cm}
+      This page size is 20cm wide x 20cm high, with margins of 4.0cm.
 
-    Resuming the page size to 10cm by 8cm.
-  \end{newstocksize}
-
-  Resuming the default paper size and margins!
-  This page size is back to the default page size (e.g., a4paper).
+    \restorestocksize
+    Resuming the page size is 15cm wide x 10cm high, with margins of 1.5cm.
+    
+  \restorestocksize
+  Resuming the default paper size and margins (e.g., a4paper)!
 ```

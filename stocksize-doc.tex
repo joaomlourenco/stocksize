@@ -48,8 +48,8 @@
   \maketitle
   
   \begin{abstract}
-    This package provides a flexible and easy interface to paper (stock) dimensions.
-    Multiple user defined stock sizes are allowed in the same document, and sock sizes can be nested.
+    This package provides a flexible and easy interface to change the paper (stock) dimensions in LaTeX documents.
+    Multiple user defined stock sizes are allowed in the same document, and sock sizes can be nested (in a LIFO order).
   \end{abstract}
 
 \section{Introduction}
@@ -70,20 +70,13 @@ is excellent for customuzing the page layout.  However, changing the page size i
   
 \subsection{Starting a new Page With a Different Page/Stock Size}
   
-  To start a new page with a different page/stock size, do not use the \verb!newstocksize! environment, but rather the commands \verb!\newstocksize! and \verb!restorestocksize!.
+To start a new page with a different page/stock size use the \verb!\newstocksize! and \verb!restorestocksize! commands.
   
   \begin{description}
     \item[] \verb!newstocksize{options}! — This command starts a new stock (and paper) size.  The \verb!options! are passed straight to the \verb!\newgeometry! command form the \verb!geometry! package.
     \item[] \verb!restorestocksize! — This command ends trhe current stock size and restores the previous one (in a LIFO fashion).
   \end{description}
-  % \begin{verbatim}
-  %   \begin{newstocksize}[options]{height}{width}
-  %     Your contents here
-  %   \end{newstocksize}
-  % \end{verbatim}
-  
-  The \texttt{options} given to \texttt{newstocksize} will be passed to the \verb!\newgeometry! command from the \texttt{geometry} package.
-    
+      
 \subsection{Nesting Different Page/Stock Sizes}
   
   Multiple paper/stock sizes can be nested.  When the \verb!newstocksize! environment, the previous size is resmued.
