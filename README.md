@@ -1,8 +1,7 @@
 # stocksize
 
-This package provides a flexible and easy interface to paper (stock) dimensions.
-Multiple user defined stock sizes are allowed in the same document, and sock sizes
-can be nested.
+This package provides a flexible and easy interface to change the paper (stock) dimensions in LaTeX documents.
+Multiple user defined stock sizes are allowed in the same document, and sock sizes can be nested (in a LIFO order).
 
 ## About
 
