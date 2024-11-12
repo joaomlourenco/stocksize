@@ -12,7 +12,7 @@
 %% and version 1.3c or later is part of all distributions of LaTeX
 %% version 2006/05/20 or later.
 %%
-\def\fileversion{1.0.0}
+\def\fileversion{1.0.1}
 \def\filedate   {2024/11/10}
 \edef\filename  {\@currname}
 
@@ -28,38 +28,68 @@
 
 % Change the physical paper (stock) size
 % Works with pdfLaTeX, XeLaTeX and LuaLaTeX
-\newcommand*{\@ss@setpdfpagesize}{%
-  \@ifundefined{pdfpageheight}{}{\pdfpageheight=\the\stockheight}%
-  \@ifundefined{pdfpagewidth}{}{\pdfpagewidth=\the\stockwidth}%
-  \@ifundefined{pageheight}{}{\pageheight=\the\stockheight}%
-  \@ifundefined{pagewidth}{}{\pagewidth=\the\stockwidth}%
+\newcommand*{\@ss@setpdfpagesize}[2]{%
+  \@ifundefined{pdfpageheight}{}{\pdfpageheight=#1}%
+  \@ifundefined{pdfpagewidth}{}{\pdfpagewidth=#2}%
+  \@ifundefined{pageheight}{}{\pageheight=31}%
+  \@ifundefined{pagewidth}{}{\pagewidth=#2}%
+}
+
+
+% Fix page layout
+\DeclareRobustCommand{\@ss@fixpagelayout}{%
+  \setlength{\paperheight}{\the\dimexpr\Gm@tmargin+\Gm@height+\Gm@bmargin\relax}
+  \setlength{\paperwidth}{\the\dimexpr\Gm@lmargin+\Gm@width+\Gm@rmargin\relax}
+  \setlength{\stockheight}{\paperheight}  
+  \setlength{\stockwidth}{\paperwidth}  
+  \setlength{\@colht}{\textheight}
+  \setlength{\@colroom}{\textheight}%
+  \setlength{\vsize}{\textheight}
+  \setlength{\columnwidth}{\textwidth}%
+  \if@twocolumn%
+    \advance\columnwidth-\columnsep
+    \divide\columnwidth\tw@%
+    \@firstcolumntrue%
+  \fi%
+  \setlength{\hsize}{\columnwidth}%
+  \setlength{\linewidth}{\hsize}%
+}
+
+\newcounter{@ss@cnt}
+\newcommand{\pdfsavegeometry}[1]{%
+  \expandafter\edef\csname @sspw@\arabic{@ss@cnt}\endcsname%
+                {\the\dimexpr\Gm@lmargin+\Gm@width+\Gm@rmargin\relax}%
+  \expandafter\edef\csname @ssph@\arabic{@ss@cnt}\endcsname%
+                {\the\dimexpr\Gm@tmargin+\Gm@height+\Gm@bmargin\relax}%
+  \stepcounter{@ss@cnt}%
+  \savegeometry{@ss@cnt@\arabic{@ss@cnt}}%
+  \restoregeometry%
+  \newgeometry{#1}%
+  \@ss@fixpagelayout%
+  \edef\@sspw{\the\dimexpr\Gm@lmargin+\Gm@width+\Gm@rmargin\relax}%
+  \edef\@ssph{\the\dimexpr\Gm@tmargin+\Gm@height+\Gm@bmargin\relax}%
+  \@ss@setpdfpagesize{\@ssph}{\@sspw}%
+}
+
+\newcommand{\pdfrestoregeometry}{%
+  \loadgeometry{@ss@cnt@\arabic{@ss@cnt}}%
+  \@ss@fixpagelayout%
+  \addtocounter{@ss@cnt}{-1}%
+  \@ss@setpdfpagesize{\csname @ssph@\arabic{@ss@cnt}\endcsname}%
+                     {\csname @sspw@\arabic{@ss@cnt}\endcsname}%
 }
 
 % To support multiple levels (nesting) of stock sizes
-\newcounter{@sscnt}
-\newenvironment{newstocksize}[3][]{%
-  % #1 = additional arguments to be passed to \newgeometry
-  % #2 = page height
-  % #3 = page width
-  \stepcounter{@sscnt}%
-  \savegeometry{pdfnewlayout\arabic{@sscnt}}%
-  \newgeometry{layoutsize={#3,#2},#1}%
-  \paperheight=#2%
-  \paperwidth=#3%
-  \stockheight=\paperheight%
-  \stockwidth=\paperwidth%
-  \@ss@setpdfpagesize%
-}{%
-  \loadgeometry{pdfnewlayout\arabic{@sscnt}}%
-  \addtocounter{@sscnt}{-1}%
-  \stockheight=\paperheight%
-  \stockwidth=\paperwidth%
-  \@ss@setpdfpagesize%
-  \AddToHookNext{shipout/before}{\DiscardShipoutBox}%
-  \addtocounter{page}{-1}%
-  ~\clearpage%
+\newcommand{\newstocksize}[1]{%
+  % #1 = layout arguments to be passed to \newgeometry
+  \pdfsavegeometry{#1}%
+}
+
+\newcommand{\restorestocksize}{%
+  \pdfrestoregeometry%
 }
 
 % Set stock dimensions to current paper dimensions
-\stockheight=\paperheight
-\stockwidth=\paperwidth
+% \stockheight=\paperheight
+% \stockwidth=\paperwidth
+
