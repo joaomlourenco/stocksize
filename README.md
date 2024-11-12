@@ -29,7 +29,7 @@ Simply load the package with (with no options):
 
 To start a new page with a different page/stock size use the \verb!\newstocksize! and \verb!restorestocksize! commands.
 ```latex
-\newstocksize{options}! — This command starts a new stock (and paper) size.  The `options` are passed straight to the \newgeometry command form the `geometry` package.
+\newstocksize{options} — This command starts a new stock (and paper) size.  The `options` are passed straight to the \newgeometry command form the `geometry` package.
 \restorestocksize — This command ends trhe current stock size and restores the previous one (in a LIFO fashion).
 ```
 
