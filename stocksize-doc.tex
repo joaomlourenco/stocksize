@@ -73,8 +73,12 @@ is excellent for customizing the page layout. However, using the \verb!\newgeome
 To start a new page with a different page/stock size use the \verb!\newstocksize! and \verb!\restorestocksize! commands.
   
   \begin{description}
-    \item[] \verb!\newstocksize{options}! — This command starts a new stock (and paper) size.  The \verb!options! are passed straight to the \verb!\newgeometry! command form the \verb!geometry! package.
-    \item[] \verb!\restorestocksize! — This command ends trhe current stock size and restores the previous one (in a LIFO fashion).
+    \item[] \verb!\newstocksize{options}! — This command starts a new stock (and paper) size.  The \verb!options! may include:
+    \begin{description}
+      \item[] \verb!keepmargins! — The current (left, right, top, and bottom) margins will be prreseved in the new page layout;
+      \item[] \verb!other_options! — The \verb!other_options! are passed straight to the \verb!\newgeometry! command form the \verb!geometry! package.
+    \end{description}
+    \item[] \verb!\restorestocksize! — This command ends the current stock size and restores the previous one (in a LIFO fashion).
   \end{description}
       
 \subsection{Nesting different page/stock sizes}
@@ -84,7 +88,7 @@ To start a new page with a different page/stock size use the \verb!\newstocksize
   \begin{verbatim}
   This page has the default size  (e.g., a4paper).
 
-    \newstocksize[margin=0pt]{layoutsize={15cm,10cm},margin=1.5cm}
+    \newstocksize{layoutsize={15cm,10cm},margin=1.5cm}
     This page size is 15cm wide x 10cm high, with margins of 1.5cm.
     
       \newstocksize{layoutsize={20cm,20cm},margin=4.0cm}

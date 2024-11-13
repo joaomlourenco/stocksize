@@ -29,8 +29,10 @@ Simply load the package with (with no options):
 
 To start a new page with a different page/stock size use the \verb!\newstocksize! and \verb!restorestocksize! commands.
 ```latex
-\newstocksize{options} — This command starts a new stock (and paper) size.  The `options` are passed straight to the \newgeometry command form the `geometry` package.
-\restorestocksize — This command ends trhe current stock size and restores the previous one (in a LIFO fashion).
+\newstocksize{options} — This command starts a new stock (and paper) size.  The `options` may include:
+    `keepmargins` — The current (left, right, top, and bottom) margins will be prreseved in the new page layout;
+    `other_options` — The `other_options` are passed straight to the \newgeometry command form the`geometry` package.
+\restorestocksize — This command ends the current stock size and restores the previous one (in a LIFO fashion).
 ```
 
 ### Nesting Different Page/Stock Sizes
@@ -40,7 +42,7 @@ To start a new page with a different page/stock size use the \verb!\newstocksize
 ```latex
   This page has the default size  (e.g., a4paper).
 
-    \newstocksize[margin=0pt]{layoutsize={15cm,10cm},margin=1.5cm}
+    \newstocksize{layoutsize={15cm,10cm},margin=1.5cm}
     This page size is 15cm wide x 10cm high, with margins of 1.5cm.
     
       \newstocksize{layoutsize={20cm,20cm},margin=4.0cm}

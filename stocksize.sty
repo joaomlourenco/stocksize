@@ -13,7 +13,7 @@
 %% version 2006/05/20 or later.
 %%
 \def\fileversion{1.0.2}
-\def\filedate   {2024/11/12}
+\def\filedate   {2024/11/13}
 \edef\filename  {\@currname}
 
 \ProvidesPackage{stocksize}[%
@@ -22,7 +22,7 @@
 % Load geometry if it was was not loaded by the user
 \AddToHook{begindocument/before}{
   \@ifpackageloaded{geometry}{}{
-    \RequirePackage[pass]{geometry}
+    \RequirePackage[reset]{geometry}
   }
 }
 
@@ -31,65 +31,40 @@
 \newcommand*{\@ss@setpdfpagesize}[2]{%
   \@ifundefined{pdfpageheight}{}{\pdfpageheight=#1}%
   \@ifundefined{pdfpagewidth}{}{\pdfpagewidth=#2}%
-  \@ifundefined{pageheight}{}{\pageheight=31}%
+  \@ifundefined{pageheight}{}{\pageheight=#1}%
   \@ifundefined{pagewidth}{}{\pagewidth=#2}%
-}
-
-
-% Fix page layout
-\DeclareRobustCommand{\@ss@fixpagelayout}{%
-  \setlength{\paperheight}{\the\dimexpr\Gm@tmargin+\Gm@height+\Gm@bmargin\relax}
-  \setlength{\paperwidth}{\the\dimexpr\Gm@lmargin+\Gm@width+\Gm@rmargin\relax}
-  \setlength{\stockheight}{\paperheight}  
-  \setlength{\stockwidth}{\paperwidth}  
-  \setlength{\@colht}{\textheight}
-  \setlength{\@colroom}{\textheight}%
-  \setlength{\vsize}{\textheight}
-  \setlength{\columnwidth}{\textwidth}%
-  \if@twocolumn%
-    \advance\columnwidth-\columnsep
-    \divide\columnwidth\tw@%
-    \@firstcolumntrue%
-  \fi%
-  \setlength{\hsize}{\columnwidth}%
-  \setlength{\linewidth}{\hsize}%
+  \paperheight=#1\stockheight=#1%
+  \paperwidth=#2\stockwidth=#2%
 }
 
 \newcounter{@ss@cnt}
-\newcommand{\pdfsavegeometry}[1]{%
+\newcommand*{\pdfsavegeometry}[1]{%
   \expandafter\edef\csname @sspw@\arabic{@ss@cnt}\endcsname%
                 {\the\dimexpr\Gm@lmargin+\Gm@width+\Gm@rmargin\relax}%
   \expandafter\edef\csname @ssph@\arabic{@ss@cnt}\endcsname%
                 {\the\dimexpr\Gm@tmargin+\Gm@height+\Gm@bmargin\relax}%
   \stepcounter{@ss@cnt}%
   \savegeometry{@ss@cnt@\arabic{@ss@cnt}}%
+  \newdimen\@tempdimd%
+  \@tempdima=\Gm@lmargin\@tempdimb=\Gm@rmargin%
+  \@tempdimc=\Gm@tmargin\@tempdimd=\Gm@bmargin%
+  \define@key{Gm}{keepmargins}[true]{\setkeys{Gm}{lmargin=\the\@tempdima,
+          rmargin=\the\@tempdimb, tmargin=\the\@tempdimc, bmargin=\the\@tempdimd
+  }}%
   \restoregeometry%
   \newgeometry{#1}%
-  \@ss@fixpagelayout%
   \edef\@sspw{\the\dimexpr\Gm@lmargin+\Gm@width+\Gm@rmargin\relax}%
   \edef\@ssph{\the\dimexpr\Gm@tmargin+\Gm@height+\Gm@bmargin\relax}%
   \@ss@setpdfpagesize{\@ssph}{\@sspw}%
 }
 
-\newcommand{\pdfrestoregeometry}{%
+\newcommand*{\pdfrestoregeometry}{%
   \loadgeometry{@ss@cnt@\arabic{@ss@cnt}}%
-  \@ss@fixpagelayout%
   \addtocounter{@ss@cnt}{-1}%
   \@ss@setpdfpagesize{\csname @ssph@\arabic{@ss@cnt}\endcsname}%
                      {\csname @sspw@\arabic{@ss@cnt}\endcsname}%
 }
 
-% To support multiple levels (nesting) of stock sizes
-\newcommand{\newstocksize}[1]{%
-  % #1 = layout arguments to be passed to \newgeometry
-  \pdfsavegeometry{#1}%
-}
-
-\newcommand{\restorestocksize}{%
-  \pdfrestoregeometry%
-}
-
-% Set stock dimensions to current paper dimensions
-% \stockheight=\paperheight
-% \stockwidth=\paperwidth
+\newcommand*{\newstocksize}{\pdfsavegeometry}
+\newcommand*{\restorestocksize}{\pdfrestoregeometry}
 
