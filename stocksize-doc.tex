@@ -56,7 +56,7 @@
 
   The package 
     \href{https://github.com/davidcarlisle/geometry}{geometry} 
-is excellent for customizing the page layout. However, using the \verb!\newgeometry! command to change the page size in the middle of the document only affects the typing area and does not impact the real paper (stock) size. This package circumvents this situation by resizing the paper (stock) size to the new page layout.
+is excellent for customising the page layout. However, using the \verb!\newgeometry! command to change the page size in the middle of the document only affects the typing area and does not impact the real paper (stock) size. This package circumvents this situation by resizing the paper (stock) size to the new page layout.
 
 \section{User Interface}
   
@@ -75,7 +75,7 @@ To start a new page with a different page/stock size use the \verb!\newstocksize
   \begin{description}
     \item[] \verb!\newstocksize{options}! — This command starts a new stock (and paper) size.  The \verb!options! may include:
     \begin{description}
-      \item[] \verb!keepmargins! — The current (left, right, top, and bottom) margins will be prreseved in the new page layout;
+      \item[] \verb!keepmargins! — The current (left, right, top, and bottom) margins will be preserved in the new page layout;
       \item[] \verb!other_options! — The \verb!other_options! are passed straight to the \verb!\newgeometry! command form the \verb!geometry! package.
     \end{description}
     \item[] \verb!\restorestocksize! — This command ends the current stock size and restores the previous one (in a LIFO fashion).
@@ -83,7 +83,7 @@ To start a new page with a different page/stock size use the \verb!\newstocksize
       
 \subsection{Nesting different page/stock sizes}
   
-  Multiple paper/stock sizes can be nested.  With each \verb!\restorestocksize! command, the previous size is resmued.
+  Multiple paper/stock sizes can be nested.  With each \verb!\restorestocksize! command, the previous size is resumed.
   
   \begin{verbatim}
   This page has the default size  (e.g., a4paper).

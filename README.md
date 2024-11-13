@@ -13,7 +13,7 @@ Multiple user defined stock sizes are allowed in the same document, and stock si
 
 ## Introduction
 
-The package [geometry](https://github.com/LaTeX-Package-Repositories/geometry) is excellent for customuzing the page layout.  However, changing the page size in the middle of the document only changes the typing area and does not affect the real paper (stock) size.  This package circunvents this situation by resizing the paper (stock) size to the given size.
+The package [geometry](https://github.com/LaTeX-Package-Repositories/geometry) is excellent for customising the page layout.  However, changing the page size in the middle of the document only changes the typing area and does not affect the real paper (stock) size.  This package circumvents this situation by resizing the paper (stock) size to the given size.
 
 
 ## User Interface
@@ -37,7 +37,7 @@ To start a new page with a different page/stock size use the \verb!\newstocksize
 
 ### Nesting Different Page/Stock Sizes
   
-  Multiple paper/stock sizes can be nested.  With each `\restorestocksize` command, the previous size is resmued.
+  Multiple paper/stock sizes can be nested.  With each `\restorestocksize` command, the previous size is resumed.
   
 ```latex
   This page has the default size  (e.g., a4paper).
