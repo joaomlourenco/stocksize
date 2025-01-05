@@ -3,6 +3,32 @@
 This package provides a flexible and easy interface to change the paper (stock) dimensions in LaTeX documents.
 Multiple user defined stock sizes are allowed in the same document, and stock sizes can be nested (in a LIFO order).
 
+--------
+
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="
+      https://api.star-history.com/svg?repos=joaomlourenco/stocksize&type=Date&theme=dark
+    "
+  />
+  <source
+    media="(prefers-color-scheme: light)"
+    srcset="
+      https://api.star-history.com/svg?repos=joaomlourenco/stocksize&type=Date
+    "
+  />
+  <img
+    width="400"
+    alt="Star History Chart"
+    src="https://api.star-history.com/svg?repos=joaomlourenco/stocksize&type=Date"
+  />
+</picture>
+
+**If you opt for using this project, please give it a star by clicking the (⭐️) at the top right of the [project's page](https://github.com/joaomlourenco/biblatex-cse).**
+
+--------
+
 ## About
 
 * **Package:** stocksize — A flexible and easy interface to paper (stock) dimensions.
