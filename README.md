@@ -4,7 +4,7 @@ This package provides a flexible and easy interface to change the paper (stock) 
 Multiple user defined stock sizes are allowed in the same document, and stock sizes can be nested (in a LIFO order).
 
 --------
-
+<!--
 <picture>
   <source
     media="(prefers-color-scheme: dark)"
@@ -24,7 +24,7 @@ Multiple user defined stock sizes are allowed in the same document, and stock si
     src="https://api.star-history.com/svg?repos=joaomlourenco/stocksize&type=Date"
   />
 </picture>
-
+-->
 **If you opt for using this project, please give it a star by clicking the (⭐️) at the top right of the [project's page](https://github.com/joaomlourenco/biblatex-cse).**
 
 --------
