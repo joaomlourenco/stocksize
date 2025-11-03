@@ -17,23 +17,31 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{kantlipsum}
 \usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{minted}
 \usepackage[colorlinks=true,allcolors=blue]{hyperref}
 \usepackage{stocksize}
 
+\DeclareRobustCommand{\cs}[1]{\texttt{\char`\\#1}}
+\DeclareRobustCommand{\marg}[1]{\texttt{\{#1\}}}
+
+\newcommand{\ssname}{\textsf{\filename}}
+\newcommand{\blue}[1]{\textcolor{blue!80!black}{#1}}
+
 \newcommand{\printpagesize}[1][]{%
   \par\ifx&#1&\else
-    The dimensions given for this page were: #1.
+    The dimensions given for this page were: \blue{#1}.
   \fi
   
   \par\bigskip\noindent This page's dimensions (in pt) are:\medskip
   
   \begin{tabular}{lll}
     \toprule
-                    & \textbf{height}   & \textbf{width}    \\
+                    & \multicolumn{1}{c}{\textbf{height}}   & \multicolumn{1}{c}{\textbf{width}}    \\
     \midrule
-    \textbf{paper}  & \the\paperheight  & \the\paperwidth   \\
-    \textbf{stock}  & \the\stockheight  & \the\stockwidth   \\    
-    \textbf{text}  & \the\textheight    & \the\textwidth    \\    
+    \textbf{paper}  & \blue{\the\paperheight}  & \blue{\the\paperwidth}   \\
+    \textbf{stock}  & \blue{\the\stockheight}  & \blue{\the\stockwidth}   \\    
+    \textbf{text}  & \blue{\the\textheight}    & \blue{\the\textwidth}    \\    
     \bottomrule
   \end{tabular}\par\bigskip
 }
@@ -41,22 +49,22 @@
 
 \begin{document} 
   
-  \title{The \textsf{\filename} package}
+  \title{The \ssname\ package}
   \author{João M. Lourenço\\\url{https://github.com/joaomlourenco/stocksize}}
   \date{\filedate\ (v\fileversion)}
   
   \maketitle
   
   \begin{abstract}
-    This package provides a flexible and easy interface to change the paper (stock) dimensions in LaTeX documents.
-    Multiple user defined stock sizes are allowed in the same document, and stock sizes can be nested (in a LIFO order).
+    The \ssname\  package provides commands to query and modify the physical paper size in a \LaTeX{} document. 
+    It supports nested page size changes, margin preservation, and automatic integration with the \textsf{geometry} package.
   \end{abstract}
 
 \section{Introduction}
 
   The package 
     \href{https://github.com/davidcarlisle/geometry}{geometry} 
-is excellent for customising the page layout. However, using the \verb!\newgeometry! command to change the page size in the middle of the document only affects the typing area and does not impact the real paper (stock) size. This package circumvents this situation by resizing the paper (stock) size to the new page layout.
+is excellent for customising the page layout. However, using the \cs{newgeometry} command to change the page size in the middle of the document only affects the typing area and does not impact the real paper (stock) size. This package circumvents this situation by resizing the paper (stock) size to the new page layout.
 
 \section{User Interface}
   
@@ -70,22 +78,22 @@ is excellent for customising the page layout. However, using the \verb!\newgeome
   
 \subsection{Starting a new page with a different page/stock size}
   
-To start a new page with a different page/stock size use the \verb!\newstocksize! and \verb!\restorestocksize! commands.
+To start a new page with a different page/stock size use the \cs{newstocksize} and \cs{restorestocksize} commands.
   
   \begin{description}
-    \item[] \verb!\newstocksize{options}! — This command starts a new stock (and paper) size.  The \verb!options! may include:
+    \item[] \cs{newstocksize}\marg{options} — This command starts a new stock (and paper) size.  The \verb!options! may include:
     \begin{description}
-      \item[] \verb!keepmargins! — The current (left, right, top, and bottom) margins will be preserved in the new page layout;
-      \item[] \verb!other_options! — The \verb!other_options! are passed straight to the \verb!\newgeometry! command form the \verb!geometry! package.
+      \item[] \texttt{keepmargins} — The current (left, right, top, and bottom) margins will be preserved in the new page layout;
+      \item[] \emph{other options} — The \emph{other options} are passed straight to the \verb!\newgeometry! command form the \verb!geometry! package.
     \end{description}
-    \item[] \verb!\restorestocksize! — This command ends the current stock size and restores the previous one (in a LIFO fashion).
+    \item[] \cs{restorestocksize} — This command ends the current stock size and restores the previous one (in a LIFO fashion).
   \end{description}
       
 \subsection{Nesting different page/stock sizes}
   
-  Multiple paper/stock sizes can be nested.  With each \verb!\restorestocksize! command, the previous size is resumed.
+  Multiple paper/stock sizes can be nested.  With each \cs{restorestocksize} command, the previous size is resumed.
   
-  \begin{verbatim}
+  \begin{minted}{latex}
   This page has the default size  (e.g., a4paper).
 
     \newstocksize{layoutsize={15cm,10cm},margin=1.5cm}
@@ -100,7 +108,7 @@ To start a new page with a different page/stock size use the \verb!\newstocksize
   \restorestocksize
   Resuming the default paper size and margins (e.g., a4paper)!
 
-  \end{verbatim}
+  \end{minted}
   
   
 \section{Example of multiple stock size pages}

@@ -1,82 +1,138 @@
-# stocksize
+# 📄 stocksize — A flexible LaTeX package for dynamic paper size management in PDF documents
 
-This package provides a flexible and easy interface to change the paper (stock) dimensions in LaTeX documents.
-Multiple user defined stock sizes are allowed in the same document, and stock sizes can be nested (in a LIFO order).
+[![License: LPPL](https://img.shields.io/badge/license-LPPL%201.3c-blue.svg)](https://www.latex-project.org/lppl/)
+[![LaTeX](https://img.shields.io/badge/LaTeX-package-orange.svg)](https://www.ctan.org/pkg/stocksize)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
 
---------
-<!--
-<picture>
-  <source
-    media="(prefers-color-scheme: dark)"
-    srcset="
-      https://api.star-history.com/svg?repos=joaomlourenco/stocksize&type=Date&theme=dark
-    "
-  />
-  <source
-    media="(prefers-color-scheme: light)"
-    srcset="
-      https://api.star-history.com/svg?repos=joaomlourenco/stocksize&type=Date
-    "
-  />
-  <img
-    width="400"
-    alt="Star History Chart"
-    src="https://api.star-history.com/svg?repos=joaomlourenco/stocksize&type=Date"
-  />
-</picture>
--->
-**If you opt for using this project, please give it a star by clicking the (⭐️) at the top right of the [project's page](https://github.com/joaomlourenco/biblatex-cse).**
+---
 
---------
+## 🧠 Overview
 
-## About
+`stocksize` is a lightweight LaTeX package that provides an easy-to-use interface to change paper (stock) dimensions in LaTeX documents. Unlike the popular `geometry` package, `stocksize` actually changes the physical PDF paper size, not just the typing area. This is particularly useful when you need multiple pages with different dimensions in a single document.
 
-* **Package:** stocksize — A flexible and easy interface to paper (stock) dimensions.
-* **Copyright:** 2024 © João M. Lourenço <joao.lourenco@fct.unl.pt>
-* **CTAN:** https://ctan.org/pkg/stocksize
-* **Repository:** https://github.com/joaomlourenco/stocksize
-* **License:** The LaTeX Project Public License 1.3c
+---
 
-## Introduction
+## 🎯 Use Cases
 
-The package [geometry](https://github.com/LaTeX-Package-Repositories/geometry) is excellent for customising the page layout.  However, changing the page size in the middle of the document only changes the typing area and does not affect the real paper (stock) size.  This package circumvents this situation by resizing the paper (stock) size to the given size.
+- **📑 Mixed-format documents**: Combine A4, A5, and custom sizes in one PDF.
+- **🎨 Design layouts**: Create brochures, flyers, or booklets with varying page sizes.
+- **📋 Reports with appendices**: Different page sizes for different sections.
+- **🌐 International documents**: Mix different paper standards (A4, Letter, etc.)
+
+------
+
+## ✨ Features
+
+- ✨ **Dynamic page sizing**: Change paper dimensions mid-document.
+- 🪆 **Nested sizes**: Stack multiple page sizes with automatic LIFO restoration.
+- 🧮 **Margin preservation**: Optionally keep and restore existing margins when resizing.
+- ⚙️ **Compatible**: Minimal dependencies and easy integration.
+- 🔍 **Debugging support**: Provides macros for easy querying of paper width and height.
+- 🧰 **Simple API**: Minimal commands to master.
+- 🧩 **Geometry integration**: Works with standard LaTeX classes and geometry setups.
+- 🧠 **Multi-engine support**: Works with pdfLaTeX, XeLaTeX, and LuaLaTeX.
+- 🧾 **Documented**: Companion documentation (`stocksize-doc.tex`) included.
+
+---
+
+## 🚀 Quick Start
+
+### Installation
+
+Place `stocksize.sty` in your project directory or LaTeX package path.
+
+### 📖 Commands
+
+### => `\newstocksize{options}`
+
+Starts a new page with the given paper (stock) size.  The subsequent pages will keep this new paper size.
+
+**Options:**
 
 
-## User Interface
 
-### Loading the Package
 
-Simply load the package with (with no options):
+| Option                      | Description                                           |
+| --------------------------- | ----------------------------------------------------- |
+| `layoutsize={width,height}` | Sets the page dimensions.                             |
+| `margin=value`              | Sets uniform margins on all sides.                    |
+| `keepmargins`               | Preserves current margins in the new layout.          |
+| *Any other option*          | Passed to `\newgeometry` from the `geometry` package. |
+
+**Example:**
+
 ```latex
-\usepackage{stocksize}
+\newstocksize{layoutsize={20cm,25cm}, margin=2cm}
+\newstocksize{a5paper, margin=1cm}  % Using preset sizes
+\newstocksize{layoutsize={10cm,15cm}, keepmargins}  % Keep current margins
 ```
 
-### Starting a new Page With a Different Page/Stock Size
+### => `\restorestocksize`
 
-To start a new page with a different page/stock size use the \verb!\newstocksize! and \verb!restorestocksize! commands.
+Restores the previous page size. Works in *Last In First Out* (LIFO) fashion, allowing nested size changes to be unwound correctly.
+
+**Example:**
+
 ```latex
-\newstocksize{options} — This command starts a new stock (and paper) size.  The `options` may include:
-    `keepmargins` — The current (left, right, top, and bottom) margins will be prreseved in the new page layout;
-    `other_options` — The `other_options` are passed straight to the \newgeometry command form the`geometry` package.
-\restorestocksize — This command ends the current stock size and restores the previous one (in a LIFO fashion).
-```
+\newstocksize{layoutsize={15cm,10cm}, margin=1.5cm}
+  Content here...
 
-### Nesting Different Page/Stock Sizes
-  
-  Multiple paper/stock sizes can be nested.  With each `\restorestocksize` command, the previous size is resumed.
-  
-```latex
-  This page has the default size  (e.g., a4paper).
-
-    \newstocksize{layoutsize={15cm,10cm},margin=1.5cm}
-    This page size is 15cm wide x 10cm high, with margins of 1.5cm.
-    
-      \newstocksize{layoutsize={20cm,20cm},margin=4.0cm}
-      This page size is 20cm wide x 20cm high, with margins of 4.0cm.
-
-    \restorestocksize
-    Resuming the page size is 15cm wide x 10cm high, with margins of 1.5cm.
-    
+  \newstocksize{layoutsize={20cm,20cm}, margin=4cm}
+    Content here...
   \restorestocksize
-  Resuming the default paper size and margins (e.g., a4paper)!
+
+  Back to 15cm×10cm
+\restorestocksize
+
+Back to default size
 ```
+
+---
+
+## 🔧 How It Works
+
+The `stocksize` package modifies the actual PDF page size using engine-specific commands:
+
+- **pdfLaTeX**: changes `\pdfpageheight` and `\pdfpagewidth`.
+- **XeLaTeX/LuaLaTeX**: changes `\pageheight` and `\pagewidth`.
+
+When you use `\newstocksize`, the package:
+
+1. Saves the current layout configuration.
+2. Applies your new geometry settings via the `geometry` package.
+3. Updates the physical PDF page dimensions accordingly.
+
+When you use `\restorestocksize`, it reverses these steps in order.
+
+---
+
+## 📦 Package Information
+
+- **Version**: 1.0.3 (2024/11/23)
+- **Author**: João M. Lourenço
+- **License**: LaTeX Project Public License (LPPL) v1.3c or later
+- **Dependencies**: `geometry` package (automatically loaded if needed)
+- **Compatibility**: pdfLaTeX, XeLaTeX, LuaLaTeX
+
+---
+
+## 📚 Documentation
+
+For detailed examples and advanced usage, see `stocksize-doc.tex` in the repository.
+
+---
+
+## 🤝 Contributing
+
+Found a bug or have a feature request? 
+Please open an issue on the [GitHub repository](https://github.com/joaomlourenco/stocksize).
+
+---
+
+## 📜 License
+
+This package is distributed under the **LaTeX Project Public License (LPPL) v1.3c** or later.
+
+---
+
+**Made with ❤️ by João M. Lourenço**

@@ -1,6 +1,6 @@
 %% This is file `stocksize.sty',
 %%
-%% Copyright (C) 2024 by João M. Lourenço <joao.lourenco@fct.unl.pt>
+%% Copyright (C) 2024, 2025 by João M. Lourenço <joao.lourenco@fct.unl.pt>
 %%
 %% This file may be distributed and/or modified under the conditions of
 %% the LaTeX Project Public License, either version 1.3c of this license
@@ -12,8 +12,8 @@
 %% and version 1.3c or later is part of all distributions of LaTeX
 %% version 2006/05/20 or later.
 %%
-\def\fileversion{1.0.3}
-\def\filedate   {2024/11/23}
+\def\fileversion{1.0.4}
+\def\filedate   {2025/10/03}
 \edef\filename  {\@currname}
 
 \ProvidesPackage{stocksize}[%
@@ -28,6 +28,17 @@
 
 % Change the physical paper (stock) size
 % Works with pdfLaTeX, XeLaTeX and LuaLaTeX
+% ------------------------------------------------------------
+% \@ss@setpdfpagesize{<height>}{<width>}
+% Low-level helper: syncs engine/LaTeX dimensions with the requested
+% physical stock size.
+% Sets (if defined): \pdfpageheight/\pdfpagewidth, \pageheight/\pagewidth,
+% and LaTeX's \paperheight/\paperwidth plus \stockheight/\stockwidth.
+% Args:
+%   #1  height dimension (e.g., 297mm)
+%   #2  width  dimension (e.g., 210mm)
+% Notes: called after computing full stock size from geometry.
+% ------------------------------------------------------------
 \newcommand*{\@ss@setpdfpagesize}[2]{%
   \@ifundefined{pdfpageheight}{}{\pdfpageheight=#1}%
   \@ifundefined{pdfpagewidth}{}{\pdfpagewidth=#2}%
@@ -37,7 +48,29 @@
   \paperwidth=#2\stockwidth=#2%
 }
 
+% ------------------------------------------------------------
+% Internal stack depth for nested stock-size changes (LIFO).
+% Each \pdfsavegeometry increases it; \pdfrestoregeometry decreases it.
+% ------------------------------------------------------------
 \newcounter{@ss@cnt}
+% ------------------------------------------------------------
+% \pdfsavegeometry{<geometry key=val list>}
+% Push a new stock/page size while preserving current state.
+% Steps:
+%   1) Save current full stock size (width/height) and margins.
+%   2) Increment internal stack counter and save a geometry profile.
+%   3) Optionally preserve previous margins via key `keepmargins` (default true).
+%   4) Apply \newgeometry{<...>} with the user-supplied keys.
+%   5) Recompute and set the new physical stock size.
+% Argument:
+%   <geometry key=val list> — passed to \newgeometry, e.g.:
+%     paper=letter, keepmargins
+%     paper=210mm:297mm, margin=2cm
+% Usage:
+%   \pdfsavegeometry{paper=a4paper, keepmargins}
+%   ... content ...
+%   \pdfrestoregeometry
+% ------------------------------------------------------------
 \newcommand*{\pdfsavegeometry}[1]{%
   \expandafter\edef\csname @sspw@\arabic{@ss@cnt}\endcsname%
                 {\the\dimexpr\Gm@lmargin+\Gm@width+\Gm@rmargin\relax}%
@@ -58,6 +91,13 @@
   \@ss@setpdfpagesize{\@ssph}{\@sspw}%
 }
 
+% ------------------------------------------------------------
+% \pdfrestoregeometry
+% Pop (restore) the previous geometry/stock size from the stack.
+% Loads the saved geometry profile for the current depth, decrements
+% the counter, and reapplies the previously saved stock size.
+% Arguments: none
+% ------------------------------------------------------------
 \newcommand*{\pdfrestoregeometry}{%
   \loadgeometry{@ss@cnt@\arabic{@ss@cnt}}%
   \addtocounter{@ss@cnt}{-1}%
