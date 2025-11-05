@@ -1,4 +1,4 @@
-# 📄 stocksize — A flexible LaTeX package for dynamic paper size management in PDF documents
+# stocksize — A flexible LaTeX package for dynamic paper size management in PDF documents
 
 [![License: LPPL](https://img.shields.io/badge/license-LPPL%201.3c-blue.svg)](https://www.latex-project.org/lppl/)
 [![LaTeX](https://img.shields.io/badge/LaTeX-package-orange.svg)](https://www.ctan.org/pkg/stocksize)
@@ -6,22 +6,22 @@
 
 ---
 
-## 🧠 Overview
+## Overview
 
 `stocksize` is a lightweight LaTeX package that provides an easy-to-use interface to change paper (stock) dimensions in LaTeX documents. Unlike the popular `geometry` package, `stocksize` actually changes the physical PDF paper size, not just the typing area. This is particularly useful when you need multiple pages with different dimensions in a single document.
 
 ---
 
-## 🎯 Use Cases
+## Use Cases
 
-- **📑 Mixed-format documents**: Combine A4, A5, and custom sizes in one PDF.
-- **🎨 Design layouts**: Create brochures, flyers, or booklets with varying page sizes.
-- **📋 Reports with appendices**: Different page sizes for different sections.
-- **🌐 International documents**: Mix different paper standards (A4, Letter, etc.)
+- **Mixed-format documents**: Combine A4, A5, and custom sizes in one PDF.
+- **Design layouts**: Create brochures, flyers, or booklets with varying page sizes.
+- **Reports with appendices**: Different page sizes for different sections.
+- **International documents**: Mix different paper standards (A4, Letter, etc.)
 
 ------
 
-## ✨ Features
+## Features
 
 - ✨ **Dynamic page sizing**: Change paper dimensions mid-document.
 - 🪆 **Nested sizes**: Stack multiple page sizes with automatic LIFO restoration.
@@ -35,7 +35,7 @@
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -89,7 +89,7 @@ Back to default size
 
 ---
 
-## 🔧 How It Works
+## How It Works
 
 The `stocksize` package modifies the actual PDF page size using engine-specific commands:
 
@@ -106,7 +106,7 @@ When you use `\restorestocksize`, it reverses these steps in order.
 
 ---
 
-## 📦 Package Information
+## Package Information
 
 - **Version**: 1.0.4 (2025/11/05)
 - **Author**: João M. Lourenço
@@ -116,20 +116,20 @@ When you use `\restorestocksize`, it reverses these steps in order.
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 For detailed examples and advanced usage, see `stocksize-doc.tex` in the repository.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Found a bug or have a feature request? 
 Please open an issue on the [GitHub repository](https://github.com/joaomlourenco/stocksize).
 
 ---
 
-## 📜 License
+## License
 
 This package is distributed under the **LaTeX Project Public License (LPPL) v1.3c** or later.
 
