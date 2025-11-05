@@ -108,7 +108,7 @@ When you use `\restorestocksize`, it reverses these steps in order.
 
 ## 📦 Package Information
 
-- **Version**: 1.0.4 (2025/11/03)
+- **Version**: 1.0.4 (2025/11/05)
 - **Author**: João M. Lourenço
 - **License**: LaTeX Project Public License (LPPL) v1.3c or later
 - **Dependencies**: `geometry` package (automatically loaded if needed)
