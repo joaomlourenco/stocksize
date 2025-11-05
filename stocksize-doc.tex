@@ -56,25 +56,51 @@
   \maketitle
   
   \begin{abstract}
-    The \ssname\  package provides commands to query and modify the physical paper size in a \LaTeX{} document. 
-    It supports nested page size changes, margin preservation, and automatic integration with the \textsf{geometry} package.
+The \ssname\ package provides commands to query, modify, and restore the physical stock (paper) size within a \LaTeX{} document. 
+It supports nested page size changes, automatic margin preservation, and integrates seamlessly with the \textsf{geometry} package. 
+This package is ideal for workflows requiring adaptive page formats, multi-format printing, or dynamic layouts.
   \end{abstract}
+
+\tableofcontents
 
 \section{Introduction}
 
   The package 
     \href{https://github.com/davidcarlisle/geometry}{geometry} 
-is excellent for customising the page layout. However, using the \cs{newgeometry} command to change the page size in the middle of the document only affects the typing area and does not impact the real paper (stock) size. This package circumvents this situation by resizing the paper (stock) size to the new page layout.
+is excellent for customising the page layout. However, using the \cs{newgeometry} command (from the \textsf{geometry} package) to change the page size in the middle of the document only affects the typing area and does not impact the real paper (stock) size. This package circumvents this situation by resizing the paper (stock) size to the new page layout.
+
+\subsection*{Terminology}
+
+\begin{itemize}
+  \item \textbf{Stock size} --- the physical sheet size (e.g., A4, Letter).
+  \item \textbf{Paper size} --- the logical page defined in the \LaTeX{} document.
+\end{itemize}
 
 \section{User Interface}
   
 \subsection{Loading the package}
   
-  Simply load the package with (with no options):
-  
-  \begin{verbatim}
-    \usepackage{stocksize}
-  \end{verbatim}
+To use the package, load it in the preamble:
+
+\begin{minted}{python}
+\usepackage{stocksize}
+\end{minted}
+
+The package automatically loads \textsf{geometry} (if not already loaded) and works with pdf\LaTeX, Xe\LaTeX, and Lua\LaTeX.
+
+\subsection{Features}
+
+\begin{description}
+  \item [Dynamic page sizing]: Change paper dimensions mid-document. %✨
+  \item [Nested sizes]: Stack multiple page sizes with automatic LIFO restoration. %🪆
+  \item [Margin preservation]: Optionally keep and restore existing margins when resizing. %🧮
+  \item [Compatible]: Minimal dependencies and easy integration. %⚙️
+  \item [Debugging support]: Provides macros for easy querying of paper width and height. %🔍
+  \item [Simple API]: Minimal commands to master. %🧰
+  \item [Geometry integration]: Works with standard LaTeX classes and geometry setups. %🧩
+  \item [Multi-engine support]: Works with pdfLaTeX, XeLaTeX, and LuaLaTeX. %🧠
+  \item [Documented]: Companion documentation (`stocksize-doc.tex`) included. %🧾
+\end{description}
   
 \subsection{Starting a new page with a different page/stock size}
   
@@ -110,8 +136,34 @@ To start a new page with a different page/stock size use the \cs{newstocksize} a
 
   \end{minted}
   
+
+ \section{Notes and Limitations}
+
+ \begin{itemize}
+   \item Some drivers (e.g., \texttt{dvips}) may ignore stock size changes mid-document.
+   \item Extremely deep nesting could hit TeX register limits.
+   \item Packages that cache paper dimensions might not immediately reflect size changes.
+ \end{itemize}
+ 
+ \section{License}
+
+ This work may be distributed and/or modified under the conditions of the 
+ \LaTeX{} Project Public License, version 1.3c or later.  
+ The latest version is available at \url{https://www.latex-project.org/lppl/}.
+
+ \section{Version History}
+
+ \begin{description}
+   \item[v1.0.4 — November 2025] Improved documentation.
+   \item[v1.0.3 — November 2024] Minor fix in the documentation.
+   \item[v1.0.2 — November 2024] A new option (\cs{keepmargins}) to keep the current left/right/top/
+   bottom margins in the new paper/stock size. Updated documentation.
+   \item[v1.0.1 — November 2024] Initial version.
+ \end{description}
+
+ 
   
-\section{Example of multiple stock size pages}
+\section{A Real Example of Different Page Sizes}
 
   % inital (21.0cm x 29.7cm)
   \printpagesize
