@@ -8,7 +8,9 @@
 
 ## Overview
 
-`stocksize` is a lightweight LaTeX package that provides an easy-to-use interface to change paper (stock) dimensions in LaTeX documents. Unlike the popular `geometry` package, `stocksize` actually changes the physical PDF paper size, not just the typing area. This is particularly useful when you need multiple pages with different dimensions in a single document.
+The `stocksize` package provides commands to query, modify, and restore the physical stock (paper) size within a LaTeX document.
+It supports nested page size changes, automatic margin preservation, and integrates seamlessly with the `geometry` package.
+This package is ideal for workflows requiring adaptive page formats, multi-format printing, or dynamic layouts.
 
 ---
 
