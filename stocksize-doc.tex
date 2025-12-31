@@ -1,95 +1,126 @@
+%% This is file `stocksize.sty'
+%%
+%% Copyright (C) 2024–25 by João M. Lourenço <joao.lourenco@fct.unl.pt>
+%%
+%% This file may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.3c of this license
+%% or (at your option) any later version.
+%%
 \documentclass[11pt,a4paper]{article}
 
+% ============================================================================
+% 1. PACKAGES AND SETUP
+% ============================================================================
+
+% --- Layout & Geometry ---
+\usepackage[margin=1in,showframe]{geometry}
+\usepackage{printlen}       % To print lengths (paperwidth, etc)
+\uselengthunit{cm}          % Set printlen unit to cm
+
+% --- Graphics & Colors ---
+\usepackage{xcolor}
 \usepackage{tikz}
 \usetikzlibrary{calc}
+
+% --- Code Presentation ---
 \usepackage{minted}
 \setminted{bgcolor=red!20!yellow!5, bgcolorpadding=0.25em}
-\usepackage[margin=1in]{geometry}
-\usepackage{kantlipsum}
-\usepackage{booktabs}
-\usepackage{makecell}
-\usepackage{xcolor}
-\usepackage{printlen}
-% Set the unit to centimeters
-\uselengthunit{cm}
+
+% --- Tables & Typography ---
+\usepackage{kantlipsum}     % Dummy text
+\usepackage{booktabs}       % Better tables
+\usepackage{makecell}       % Multiline table cells
+
+% --- Functionality ---
 \usepackage{etoolbox}
 \usepackage[colorlinks=true,allcolors=blue]{hyperref}
-\usepackage[]{stocksize}
 
+% --- The stocksize Package ---
+\usepackage{stocksize}
+
+% ============================================================================
+% 2. DOCUMENT MACROS & COMMANDS
+% ============================================================================
+
+% --- Shorthands for Documentation ---
 \DeclareRobustCommand{\cs}[1]{\texttt{\char`\\#1}}
 \DeclareRobustCommand{\marg}[1]{\texttt{\{#1\}}}
 \DeclareRobustCommand{\oarg}[1]{\texttt{[#1]}}
-
 \newcommand{\ssname}{\textsf{stocksize}}
 \newcommand{\blue}[1]{\textcolor{blue!80!black}{#1}}
-
 \renewcommand{\theadfont}{\bfseries}
+
+% --- Helper: Print Table with Current Dimensions ---
 \newcommand{\printpagedims}[1][]{%
-\begin{center}
-  \ifstrequal{#1}{t}{}{\vfill}%
-  \begin{tabular}{rrr}
-\toprule
-    \multicolumn{3}{c}{\thead{Current page dimensions:}} \\ 
-\midrule[0.2pt]
-    & \thead{Height (cm)} & \thead{Width (cm)}\\ 
-\midrule
-    \thead[r]{Paper} & \color{blue}\printlength{\paperheight} & \color{blue}\printlength{\paperwidth} \\
-    \thead[r]{Text} & \color{blue}\printlength{\textheight} & \color{blue}\printlength{\textwidth} \\
-\bottomrule
-  \end{tabular}
-  \ifstrequal{#1}{c}{\vfill}{}%
-\end{center}
+  \begin{center}
+    \ifstrequal{#1}{t}{}{\vfill}%
+    \begin{tabular}{rrr}
+      \toprule
+      \multicolumn{3}{c}{\thead{Current page dimensions:}} \\ 
+      \midrule[0.2pt]
+      & \thead{Height (cm)} & \thead{Width (cm)}\\ 
+      \midrule
+      \thead[r]{Paper} & \color{blue}\printlength{\paperheight} & \color{blue}\printlength{\paperwidth} \\
+      \thead[r]{Text}  & \color{blue}\printlength{\textheight}  & \color{blue}\printlength{\textwidth} \\
+      \bottomrule
+    \end{tabular}
+    \ifstrequal{#1}{c}{\vfill}{}%
+  \end{center}
 }
 
+% --- Helper: Draw Visual Rulers (TikZ) ---
 \newcommand{\myrules}{
-\begin{tikzpicture}[remember picture, overlay]
-  % Page reference points
-  \coordinate (NW) at (current page.north west);
-  % Offsets: 1cm from margins
-  \coordinate (H0) at ($(NW)+(0,-1cm)$); % horizontal ruler baseline
-  \coordinate (V0) at ($(NW)+(1cm,0)$);  % vertical ruler baseline
+  \begin{tikzpicture}[remember picture, overlay]
+    % Reference: Top-Left Corner
+    \coordinate (NW) at (current page.north west);
+    
+    % Offsets: 1cm from margins for ruler baselines
+    \coordinate (H0) at ($(NW)+(0,-1cm)$); % Horizontal ruler
+    \coordinate (V0) at ($(NW)+(1cm,0)$);  % Vertical ruler
 
-  % -------------------------------
-  % Horizontal ruler (black)
-  % -------------------------------
-  \draw[orange,line width=0.5pt] (H0) -- ($(H0)+(\paperwidth,0)$);
-  \foreach \i in {0,...,30}{
-    \draw[orange,line width=0.5pt]
-      ($(H0)+(\i cm,0)$) -- ($(H0)+(\i cm,3mm)$);
-    \node[font=\scriptsize,anchor=south,text=orange]
-      at ($(H0)+(\i cm,3mm)$) {\i};
-  }
-
-  % mm ticks
-  \foreach \j in {0,...,300}{
-    \pgfmathtruncatemacro{\m}{mod(\j,10)}
-    \ifnum\m=0\relax\else
-      \draw[orange,line width=0.3pt]
-        ($(H0)+(\j mm,0)$) -- ($(H0)+(\j mm,1.5mm)$);
-    \fi
-  }
-
-  % -------------------------------
-  % Vertical ruler (orange)
-  % -------------------------------
-  \draw[orange,line width=0.8pt] (V0) -- ($(V0)+(0,-\paperheight)$);
-  \foreach \i in {0,...,40}{
-    \draw[orange,line width=0.8pt]
-      ($(V0)+(0,-\i cm)$) -- ($(V0)+(3mm,-\i cm)$);
-    \node[font=\scriptsize,anchor=west,text=orange]
-      at ($(V0)+(3mm,-\i cm)$) {\i};
-  }
-
-  % mm ticks
-  \foreach \j in {0,...,400}{
-    \pgfmathtruncatemacro{\m}{mod(\j,10)}
-    \ifnum\m=0\relax\else
+    % --- Horizontal Ruler (Orange) ---
+    \draw[orange,line width=0.5pt] (H0) -- ($(H0)+(\paperwidth,0)$);
+    
+    % CM Ticks & Numbers
+    \foreach \i in {0,...,30}{
       \draw[orange,line width=0.5pt]
-        ($(V0)+(0,-\j mm)$) -- ($(V0)+(1.5mm,-\j mm)$);
-    \fi
-  }
-\end{tikzpicture}
+        ($(H0)+(\i cm,0)$) -- ($(H0)+(\i cm,3mm)$);
+      \node[font=\scriptsize,anchor=south,text=orange]
+        at ($(H0)+(\i cm,3mm)$) {\i};
+    }
+    % MM Ticks
+    \foreach \j in {0,...,300}{
+      \pgfmathtruncatemacro{\m}{mod(\j,10)}
+      \ifnum\m=0\relax\else
+        \draw[orange,line width=0.3pt]
+          ($(H0)+(\j mm,0)$) -- ($(H0)+(\j mm,1.5mm)$);
+      \fi
+    }
+
+    % --- Vertical Ruler (Orange) ---
+    \draw[orange,line width=0.8pt] (V0) -- ($(V0)+(0,-\paperheight)$);
+    
+    % CM Ticks & Numbers
+    \foreach \i in {0,...,40}{
+      \draw[orange,line width=0.8pt]
+        ($(V0)+(0,-\i cm)$) -- ($(V0)+(3mm,-\i cm)$);
+      \node[font=\scriptsize,anchor=west,text=orange]
+        at ($(V0)+(3mm,-\i cm)$) {\i};
+    }
+    % MM Ticks
+    \foreach \j in {0,...,400}{
+      \pgfmathtruncatemacro{\m}{mod(\j,10)}
+      \ifnum\m=0\relax\else
+        \draw[orange,line width=0.5pt]
+          ($(V0)+(0,-\j mm)$) -- ($(V0)+(1.5mm,-\j mm)$);
+      \fi
+    }
+  \end{tikzpicture}
 }
+
+% ============================================================================
+% 3. MAIN DOCUMENT
+% ============================================================================
 
 \begin{document} 
   
@@ -100,132 +131,135 @@
   \maketitle
   
   \begin{abstract}
-The \ssname\ package provides commands to modify, and restore the physical stock (paper) size within a \LaTeX{} document. It supports nested page size changes using a stack-based approach (LIFO) and allows for automatic margin preservation. The package integrates seamlessly with the \textsf{geometry} package, ensuring that logical layout changes are always patch-geometryd with the physical output page dimensions.
+    The \ssname\ package provides commands to modify and restore the physical stock (paper) size within a \LaTeX{} document. It supports nested page size changes using a stack-based approach (LIFO) and allows for automatic margin preservation. The package integrates seamlessly with the \textsf{geometry} package, ensuring that logical layout changes are always synchronized with the physical output page dimensions.
   \end{abstract}
 
-\tableofcontents
+  \tableofcontents
 
-\section{Introduction}
-
-The \textsf{geometry} package provides a comprehensive interface for specifying page layout parameters such as margins and text block dimensions. However, changing the layout mid-document often leaves the physical paper size (the "canvas" used by PDF viewers or printers) out of sync with the logical text area.
-
-The \ssname\ package provides \textbf{robust control of the physical PDF page size} (the \textbf{stock size}) inside a LaTeX document.
-
-It complements the \texttt{geometry} package by managing \textbf{paper size transitions} reliably, including \textbf{nested changes}, while delegating margin and layout calculations to \texttt{geometry}.
-
-The package is designed for documents where the \textbf{physical page size itself must change mid-document}, such as appendices, inserts, or mixed-format publications.
-
-\subsection*{Terminology}
-
-\begin{itemize}
-  \item \textbf{Stock size}: The physical dimensions of the sheet (e.g., A4, Letter) as interpreted by the output driver (PDF or Printer).
-  \item \textbf{Paper size}: The logical page dimensions defined within the \LaTeX{} document variables (e.g., \cs{paperwidth}).
-\end{itemize}
-
-\section{User Interface}
+  % --------------------------------------------------------------------------
+  \section{Introduction}
+  % --------------------------------------------------------------------------
+  The \textsf{geometry} package provides a comprehensive interface for specifying page layout parameters such as margins and text block dimensions. However, changing the layout mid-document often leaves the physical paper size (the “canvas” used by PDF viewers or printers) out of sync with the logical text area.
   
-\subsection{Loading the package}
+  The \ssname\ package provides \textbf{robust control of the physical PDF page size} (the \textbf{stock size}) inside a LaTeX document. It complements the \texttt{geometry} package by managing \textbf{paper size transitions} reliably, including \textbf{nested changes}, while delegating margin and layout calculations to \texttt{geometry}.
+
+  \subsection*{Terminology}
+  \begin{itemize}
+    \item \textbf{Stock size}: The physical dimensions of the sheet (e.g., A4, Letter) as interpreted by the output driver (PDF or Printer).
+    \item \textbf{Paper size}: The logical page dimensions defined within the \LaTeX{} document variables (e.g., \cs{paperwidth}).
+  \end{itemize}
+
+  % --------------------------------------------------------------------------
+  \section{User Interface}
+  % --------------------------------------------------------------------------
   
-To use the package, load it in the preamble:
+  % ..........................................................................
+  \subsection{Loading the package}
+  % ..........................................................................
+  To use the package, load it in the preamble:
+  \begin{minted}{latex}
+    \usepackage[options]{stocksize}
+  \end{minted}
+  The package automatically loads \textsf{geometry} (if not already loaded) and works with pdf\LaTeX, Xe\LaTeX, and Lua\LaTeX.
 
-\begin{minted}{latex}
-\usepackage[options]{stocksize}
-\end{minted}
+  \subsubsection{Package Options}
+  \begin{description}
+    \item[\texttt{patch-geometry}] (boolean, default: \texttt{false}) — When enabled, this option patches the standard \cs{newgeometry}, \cs{restoregeometry}, and \cs{loadgeometry} commands to automatically synchronize the physical stock size whenever the layout changes.
+  \end{description}
 
-The package automatically loads \textsf{geometry} (if not already loaded) and works with pdf\LaTeX, Xe\LaTeX, and Lua\LaTeX.
-
-\subsubsection{Package Options}
-
-\begin{description}
-  \item[\texttt{patch-geometry}] (boolean, default: \texttt{false}) — When enabled, this option patches the standard \cs{newgeometry}, \cs{restoregeometry}, and \cs{loadgeometry} commands to automatically patch-geometry the physical stock size whenever the layout changes.
-\end{description}
-
-\subsection{Features}
-
-\begin{description}
-  \item [Dynamic synchronization:] Automatically updates the physical paper dimensions when the layout changes.
-  \item [Nested layouts:] Implements a Last-In-First-Out (LIFO) stack for page geometries, which allows nesting multiple \cs{newstocksize} (or \cs{newgeometry}) calls and restore them in reverse order.
-  \item [Margin preservation:] The \texttt{keepmargins} option allows resizing the paper while maintaining the existing margin offsets.
-  \item [Seamless integration:] Built directly on top of the \textsf{geometry} package.
-\end{description}
+  % ..........................................................................
+  \subsection{Features}
+  % ..........................................................................
+  \begin{description}
+    \item [Dynamic synchronization:] Automatically updates the physical paper dimensions when the layout changes.
+    \item [Nested layouts:] Implements a Last-In-First-Out (LIFO) stack for page geometries, which allows nesting multiple \cs{newstocksize} (or \cs{newgeometry}) calls and restoring them in reverse order.
+    \item [Margin preservation:] The \texttt{keepmargins} option allows resizing the paper while maintaining the existing margin offsets.
+    \item [Seamless integration:] Built directly on top of the \textsf{geometry} package.
+  \end{description}
   
-\subsection{Changing the stock size}
-  
-To start a new page with specific stock (paper) dimensions, use the \cs{newstocksize} command. To return to the previous layout, use \cs{restorestocksize}.
+  % ..........................................................................
+  \subsection{Changing the stock size}
+  % ..........................................................................
+  To start a new page with specific stock (paper) dimensions, use the \cs{newstocksize} command. To return to the previous layout, use \cs{restorestocksize}.
 
-\begin{description}
+  \begin{description}
     \item[] \cs{newstocksize}\marg{options}
-    
-    Starts a new page with the specified stock size. The \texttt{options} argument accepts:
-    \begin{itemize}
-      \item \texttt{keepmargins}: Preserves the current top, bottom, left, and right margins in the new layout.
-      \item \emph{Geometry options}: Any valid \textsf{geometry} key-value pair (e.g., \texttt{layoutsize=\{...\}}, \texttt{margin=...}). These are passed directly to \cs{newgeometry}.
-    \end{itemize}
+      Starts a new page with the specified stock size. The \texttt{options} argument accepts:
+      \begin{itemize}
+        \item \texttt{keepmargins}: Preserves the current top, bottom, left, and right margins in the new layout.
+        \item \emph{Geometry options}: Any valid \textsf{geometry} key-value pair (e.g., \texttt{layoutsize=\{...\}}, \texttt{margin=...}). These are passed directly to \cs{newgeometry}.
+      \end{itemize}
 
     \item[] \cs{restorestocksize}
-    
-    Ends the current layout and restores the previous stock size and geometry settings from the stack.
-\end{description}
+      Ends the current layout and restores the previous stock size and geometry settings from the stack.
+  \end{description}
       
-\subsection{Nesting example}
+  % ..........................................................................
+  \subsection{Nesting example}
+  % ..........................................................................
+  Multiple stock sizes can be nested. Each \cs{restorestocksize} call resumes the dimensions active before the most recent change.
   
-Multiple stock sizes can be nested. Each \cs{restorestocksize} call resumes the dimensions active before the most recent change.
-  
-\begin{minted}{latex}
-% 1. Default page (e.g., A4)
-This page has the default size.
+  \begin{minted}{latex}
+    % 1. Default page (e.g., A4)
+    This page has the default size.
 
-% 2. Change to 15x10cm
-\newstocksize{layoutsize={15cm,10cm}, margin=1.5cm}
-This page is 15cm x 10cm.
+    % 2. Change to 15x10cm
+    \newstocksize{layoutsize={15cm,10cm}, margin=1.5cm}
+    This page is 15cm x 10cm.
 
-  % 3. Nested change to 20x20cm
-  \newstocksize{layoutsize={20cm,20cm}, margin=4.0cm}
-  This page is 20cm x 20cm.
+      % 3. Nested change to 20x20cm
+      \newstocksize{layoutsize={20cm,20cm}, margin=4.0cm}
+      This page is 20cm x 20cm.
 
-  % 4. Restore previous (returns to 15x10cm)
-  \restorestocksize
-  Back to 15cm x 10cm.
+      % 4. Restore previous (returns to 15x10cm)
+      \restorestocksize
+      Back to 15cm x 10cm.
 
-% 5. Restore original (returns to A4)
-\restorestocksize
-Back to default A4.
-\end{minted}
+    % 5. Restore original (returns to A4)
+    \restorestocksize
+    Back to default A4.
+  \end{minted}
 
-\section{Notes and Limitations}
-
-\begin{itemize}
-   \item \textbf{Drivers}: While this package supports PDF output engines (pdfTeX, LuaTeX, XeTeX), some DVI drivers may require additional configuration or special commands to reflect size changes in viewers.
-   \item \textbf{Stack limit}: Extremely deep nesting may hit \TeX{} register limits, though this is unlikely in typical use cases.
-   \item \textbf{Packages}: External packages that cache paper dimensions at the start of the document may not immediately reflect changes made by \ssname.
-\end{itemize}
+  % --------------------------------------------------------------------------
+  \section{Notes and Limitations}
+  % --------------------------------------------------------------------------
+  \begin{itemize}
+     \item \textbf{Drivers}: While this package supports PDF output engines (pdfTeX, LuaTeX, XeTeX), some DVI drivers may require additional configuration or special commands to reflect size changes in viewers.
+     \item \textbf{Stack limit}: Extremely deep nesting may hit \TeX{} register limits, though this is unlikely in typical use cases.
+     \item \textbf{Packages}: External packages that cache paper dimensions at the start of the document may not immediately reflect changes made by \ssname.
+  \end{itemize}
  
-\section{License}
+  % --------------------------------------------------------------------------
+  \section{License}
+  % --------------------------------------------------------------------------
+  This work may be distributed and/or modified under the conditions of the 
+  \LaTeX{} Project Public License, version 1.3c or later.
+  The latest version is available at \url{https://www.latex-project.org/lppl/}.
 
-This work may be distributed and/or modified under the conditions of the 
-\LaTeX{} Project Public License, version 1.3c or later. The latest version is available at \url{https://www.latex-project.org/lppl/}.
+  % --------------------------------------------------------------------------
+  \section{Version History}
+  % --------------------------------------------------------------------------
+  \begin{description}
+     \item[v2.0.0 — December 2026] Major rewrite.
+     \begin{itemize}
+       \item Fixed problem with the location of the page numbers after a \cs{restorestocksize} command.
+       \item Redefined \cs{newgeometry} and \cs{restoregeometry} to operate as a LIFO stack, enabling robust nesting of layouts.
+       \item Added automatic synchronization between logical and physical paper sizes.
+       \item Added \texttt{patch-geometry} package option.
+     \end{itemize}
+     \item[v1.0.4 — November 2025] Improved documentation.
+     \item[v1.0.3 — November 2024] Minor fix in the documentation.
+     \item[v1.0.2 — November 2024] Added \texttt{keepmargins} option to preserve margins when changing stock size.
+     \item[v1.0.1 — November 2024] Initial version.
+  \end{description}
 
-\section{Version History}
-
-\begin{description}
-   \item[v2.0.0 — December 2026] Major rewrite. Fixed problem with the location of the page numbers after a \cs{restorestocksize} command.
-   \begin{itemize}
-     \item Redefined \cs{newgeometry} and \cs{restoregeometry} to operate as a LIFO stack, enabling robust nesting of layouts.
-     \item Added automatic synchronization between logical and physical paper sizes.
-     \item Added \texttt{patch-geometry} package option.
-   \end{itemize}
-   \item[v1.0.4 — November 2025] Improved documentation.
-   \item[v1.0.3 — November 2024] Minor fix in the documentation.
-   \item[v1.0.2 — November 2024] Added \texttt{keepmargins} option to preserve margins when changing stock size.
-   \item[v1.0.1 — November 2024] Initial version.
-\end{description}
-
-\section{A Real Example of Different Page Sizes}
-
+  % --------------------------------------------------------------------------
+  \section{A Real Example of Different Page Sizes}
+  % --------------------------------------------------------------------------
   \myrules
   \kant[1-2]
   
-%- BEGIN ---------------------------------------------
+  %- SCENARIO 1: Small Page ---------------------------------------------
   \printpagedims[b]
   \newstocksize{layoutsize={11cm,9cm}, includeheadfoot, margin=1cm}
     \myrules  
@@ -235,38 +269,37 @@ This work may be distributed and/or modified under the conditions of the
     \kant[1]
     \bigskip
 
-%- BEGIN ---------------------------------------------
+    %- SCENARIO 2: Wide Strip with no margins (Nested) ---
     \printpagedims[c]    
     \newstocksize{layoutsize={24cm,7cm}, margin=0cm}
     \myrules
-%.....................................................    
+    
+    % Visual markers
     \foreach \i in {1,...,100} {\i\ }
-   
     \printpagedims[c]
     \foreach \i in {1,...,100} {\i\ }
-%.....................................................
+
     \restorestocksize
-%- END -----------------------------------------------
+    % -------------------------------------------------------------------
     
-    
-%- BEGIN ---------------------------------------------
+    %- SCENARIO 3: Wide Strip with header and footer (Nested) -----------
     \newstocksize{layoutsize={24cm,10cm}, includeheadfoot, margin=0cm}
     \myrules
-%.....................................................
+
     \foreach \i in {1,...,100} {\i\ }
     \printpagedims[c]
     \foreach \i in {1,...,100} {\i\ }
-%.....................................................
+
     \restorestocksize
-%- END -----------------------------------------------    
+    % -------------------------------------------------------------------
 
     \textbf{And} \verb!\restorestocksize! \textbf{will restore the previous layout.}
-%.....................................................
     \printpagedims[b]
-    \restorestocksize
-    \printpagedims[t]
-%- END -----------------------------------------------
+  
+  \restorestocksize
+  %- END SCENARIO 1 -----------------------------------------------------
 
+  \printpagedims[t]
   \textbf{Normal page layout and size.}
   \kant[1-5]
     
