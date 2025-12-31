@@ -1,140 +1,169 @@
-# stocksize — A flexible LaTeX package for dynamic paper size management in PDF documents
+# stocksize — Structured control of PDF page (stock) size in LaTeX
 
-[![License: LPPL](https://img.shields.io/badge/license-LPPL%201.3c-blue.svg)](https://www.latex-project.org/lppl/)
-[![LaTeX](https://img.shields.io/badge/LaTeX-package-orange.svg)](https://www.ctan.org/pkg/stocksize)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
-
----
-
-## Overview
-
-The `stocksize` package provides commands to query, modify, and restore the physical stock (paper) size within a LaTeX document.
-It supports nested page size changes, automatic margin preservation, and integrates seamlessly with the `geometry` package.
-This package is ideal for workflows requiring adaptive page formats, multi-format printing, or dynamic layouts.
+[![CTAN](https://img.shields.io/ctan/v/aidisclose)](https://ctan.org/pkg/stocksize)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/joaomlourenco/stocksize)
+[![Date](https://img.shields.io/badge/date-2025--12--31-orange)](https://github.com/joaomlourenco/stocksize)
+[![License: LPPL 1.3c](https://img.shields.io/badge/license-LPPL%201.3c-blue)](https://www.latex-project.org/lppl/lppl-1-3c/)
+[![LaTeX](https://img.shields.io/badge/LaTeX-LaTeX2e%202020%2F10%2F01%2B-brightgreen)](https://www.latex-project.org/)
 
 ---
 
-## Use Cases
+## Purpose
 
-- **Mixed-format documents**: Combine A4, A5, and custom sizes in one PDF.
-- **Design layouts**: Create brochures, flyers, or booklets with varying page sizes.
-- **Reports with appendices**: Different page sizes for different sections.
-- **International documents**: Mix different paper standards (A4, Letter, etc.)
+The **`stocksize`** package provides **robust control of the physical PDF page size** (the *stock size*) inside a LaTeX document.
 
-------
+It complements the `geometry` package by managing **paper size transitions** reliably, including **nested changes**, while delegating margin and layout calculations to `geometry`.
+
+The package is designed for documents where the **physical page size itself must change mid-document**, such as appendices, inserts, or mixed-format publications.
+
+---
+
+## Key Concepts
+
+- **Stock size** = physical PDF page dimensions  
+- **Layout** = (logical) paper height and width, margins, text block, headers/footers (handled by `geometry`)  
+- `stocksize` coordinates both, ensuring they remain synchronized
+
+---
+
+## Typical Use Cases
+
+- Appendices with different paper formats
+- Mixed A4 / A5 / Letter documents
+- Landscape or square inserts
+- Print-ready PDFs with non-uniform stock
+- Publisher workflows requiring strict PDF page dimensions
+
+---
 
 ## Features
 
-- ✨ **Dynamic page sizing**: Change paper dimensions mid-document.
-- 🪆 **Nested sizes**: Stack multiple page sizes with automatic LIFO restoration.
-- 🧮 **Margin preservation**: Optionally keep and restore existing margins when resizing.
-- ⚙️ **Compatible**: Minimal dependencies and easy integration.
-- 🔍 **Debugging support**: Provides macros for easy querying of paper width and height.
-- 🧰 **Simple API**: Minimal commands to master.
-- 🧩 **Geometry integration**: Works with standard LaTeX classes and geometry setups.
-- 🧠 **Multi-engine support**: Works with pdfLaTeX, XeLaTeX, and LuaLaTeX.
-- 🧾 **Documented**: Companion documentation (`stocksize-doc.tex`) included.
+- **Logical page size control** (via `geometry`)
+- **Physical page size control** (PDF page dimensions)
+- **Fully nested size changes** (LIFO stack semantics)
+- ***Optional margin preservation**
+- **Reliable restoration** of previous sizes
+- **Transparent integration with `geometry`**
+- **Engine-independent** (pdfLaTeX, XeLaTeX, LuaLaTeX)
+- **Documented design** with rationale and implementation notes
 
 ---
 
-## Quick Start
+## Installation
 
-### Installation
+Place `stocksize.sty` in your working directory or a LaTeX-visible path.
 
-Place `stocksize.sty` in your project directory or LaTeX package path.
+Load the package in the preamble with:
+```latex
+\usepackage[OPTIONS]{stocksize}
+```
 
-### 📖 Commands
+The package loads `geometry` automatically if needed.
 
-### => `\newstocksize{options}`
+---
 
-Starts a new page with the given paper (stock) size.  The subsequent pages will keep this new paper size.
+## User Interface
 
-**Options:**
+### `\newstocksize{⟨options⟩}`
 
+Starts a new physical page with the specified stock size and geometry options.
 
+Internally:
+1. Saves the current page and layout state
+2. Applies `geometry` with the provided options
+3. Updates the PDF page dimensions
 
+**Options**
 
-| Option                      | Description                                           |
-| --------------------------- | ----------------------------------------------------- |
-| `layoutsize={width,height}` | Sets the page dimensions.                             |
-| `margin=value`              | Sets uniform margins on all sides.                    |
-| `keepmargins`               | Preserves current margins in the new layout.          |
-| *Any other option*          | Passed to `\newgeometry` from the `geometry` package. |
+All options are passed directly to `geometry`, except `keepmargins` which are processed by the package.
 
-**Example:**
+Common examples:
+
+| Option | Meaning |
+|------|--------|
+| `layoutsize={w,h}` | Set physical page size |
+| `paperwidth=…` / `paperheight=…` | Alternative size specification |
+| `margin=…` | Uniform margins |
+| `keepmargins` | Preserve current margins |
+
+**Example**
 
 ```latex
 \newstocksize{layoutsize={20cm,25cm}, margin=2cm}
-\newstocksize{a5paper, margin=1cm}  % Using preset sizes
-\newstocksize{layoutsize={10cm,15cm}, keepmargins}  % Keep current margins
 ```
 
-### => `\restorestocksize`
+---
 
-Restores the previous page size. Works in *Last In First Out* (LIFO) fashion, allowing nested size changes to be unwound correctly.
+### `\restorestocksize`
 
-**Example:**
+Restores the **previous** stock size and layout.
+
+- Operates in **Last-In-First-Out (stack) order**
+- Safe for arbitrarily deep nesting
+- Restores both geometry and PDF page size
+
+**Example**
 
 ```latex
 \newstocksize{layoutsize={15cm,10cm}, margin=1.5cm}
-  Content here...
+  Content...
 
-  \newstocksize{layoutsize={20cm,20cm}, margin=4cm}
-    Content here...
+  \newstocksize{layoutsize={20cm,20cm}, keepmargins}
+    Nested content in 20x20 cm stock and paper size...
   \restorestocksize
 
-  Back to 15cm×10cm
+Back to 15×10 cm stock and paper size...
 \restorestocksize
 
-Back to default size
+Back to the initial stock and paper size...
 ```
 
 ---
 
-## How It Works
+## Relation to `geometry`
 
-The `stocksize` package modifies the actual PDF page size using engine-specific commands:
-
-- **pdfLaTeX**: changes `\pdfpageheight` and `\pdfpagewidth`.
-- **XeLaTeX/LuaLaTeX**: changes `\pageheight` and `\pagewidth`.
-
-When you use `\newstocksize`, the package:
-
-1. Saves the current layout configuration.
-2. Applies your new geometry settings via the `geometry` package.
-3. Updates the physical PDF page dimensions accordingly.
-
-When you use `\restorestocksize`, it reverses these steps in order.
+- `geometry` alone does **not** safely support nested page size changes
+- `stocksize` provides a **stack-based abstraction** on top of `geometry`
+- All layout computation remains delegated to `geometry`
+- `stocksize` ensures page size and layout state remain consistent
 
 ---
 
-## Package Information
+## Technical Notes
 
-- **Version**: 1.0.4 (2025/11/05)
-- **Author**: João M. Lourenço
-- **License**: LaTeX Project Public License (LPPL) v1.3c or later
-- **Dependencies**: `geometry` package (automatically loaded if needed)
-- **Compatibility**: pdfLaTeX, XeLaTeX, LuaLaTeX
+- PDF page size is set using:
+  - `\pdfpagewidth` / `\pdfpageheight` (pdfLaTeX)
+  - `\pagewidth` / `\pageheight` (XeLaTeX, LuaLaTeX)
+- Geometry states are saved and restored explicitly
+- No grouping tricks or output-routine hacks are used
 
 ---
 
 ## Documentation
 
-For detailed examples and advanced usage, see `stocksize-doc.tex` in the repository.
+The full technical documentation, including design rationale and edge-case discussion, is available in:
+
+```
+stocksize-doc.pdf
+```
+
+---
+
+## Package Information
+
+- **Version**: 2.0.0 (2025-12-31)
+- **Author**: João M. Lourenço
+- **License**: LPPL v1.3c or later
+- **Dependencies**: `geometry`
+- **Engines**: pdfLaTeX, XeLaTeX, LuaLaTeX
 
 ---
 
 ## Contributing
 
-Found a bug or have a feature request? 
-Please open an issue on the [GitHub repository](https://github.com/joaomlourenco/stocksize).
+Bug reports, tests, and design discussions are welcome via GitHub issues.
 
 ---
 
-## License
-
-This package is distributed under the **LaTeX Project Public License (LPPL) v1.3c** or later.
-
----
-
-**Made with ❤️ by João M. Lourenço**
+Copyright © 2025-26 João M. Lourenço.  
+Crafted with 🧡 for reproducible scientific writing.

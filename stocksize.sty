@@ -1,4 +1,4 @@
-%% This is file `stocksize.sty',
+%% This is file `stocksize.sty'
 %%
 %% Copyright (C) 2024–25 by João M. Lourenço <joao.lourenco@fct.unl.pt>
 %%
@@ -10,101 +10,176 @@
 %%    http://www.latex-project.org/lppl.txt
 %%
 %% and version 1.3c or later is part of all distributions of LaTeX
-%% version 2006/05/20 or later.
+%% version 2025/12/13 or later.
 %%
-\def\fileversion{1.0.4}
-\def\filedate   {2025/11/05}
-\edef\filename  {\@currname}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesExplPackage{stocksize}
+                    {2025/01/01}
+                    {2.0.0}
+                    {Synchronize physical with logical paper size (Stack Aware)}
 
-\ProvidesPackage{stocksize}[%
-  \filedate\  v\fileversion (João M. Lourenço) User defined PDF paper (stock) size.]
 
-% Load geometry if it was was not loaded by the user
-\AddToHook{begindocument/before}{
-  \@ifpackageloaded{geometry}{}{
-    \RequirePackage[reset]{geometry}
+\RequirePackage{geometry}
+\RequirePackage{l3keys2e}
+
+% Redefine \newgeometry and \restoregeometry from geometry.sty 
+% so that these commands work in a stack (nested) mode
+
+% 1. Initialize the stack counter
+\newcount\Gm@stackcnt
+\Gm@stackcnt=\z@
+
+% 2. Redefine \newgeometry to PUSH to stack
+\renewcommand{\newgeometry}[1]{%
+  \clearpage
+  % --- Stack Push Logic ---
+  % Initialize \Gm@restore locally so we don't append to previous junk
+  \def\Gm@restore{}%
+  % Call \Gm@save. This builds the \Gm@restore macro with "fetch instructions"
+  \Gm@save
+  % Increment stack counter
+  \global\advance\Gm@stackcnt\@ne
+  % Use \xdef to EXPAND \Gm@restore now.
+  % This converts "\the\paperwidth" into "597pt" and stores the result.
+  \global\expandafter\xdef\csname Gm@stack@\the\Gm@stackcnt\endcsname{\Gm@restore}%
+  % ------------------------
+  \Gm@restore@org                 % Reset to preamble defaults
+  \Gm@initnewgm
+  \Gm@newgmtrue
+  \setkeys{Gm}{#1}%
+  \Gm@newgmfalse
+  \Gm@process
+  \ifnum\mag=\@m\else\Gm@magtooffset\fi
+  \Gm@changelayout
+  \Gm@showparams{newgeometry}}
+
+% 3. Redefine \restoregeometry to POP from stack
+\renewcommand{\restoregeometry}{%
+  \clearpage
+  % --- Stack Pop Logic ---
+  \ifnum\Gm@stackcnt>\z@
+    % Stack is not empty: Execute the macro for the current level
+    \csname Gm@stack@\the\Gm@stackcnt\endcsname
+    % Decrement the counter
+    \global\advance\Gm@stackcnt\m@ne
+  \else
+    % Stack is empty: Fallback to original behavior
+    \Gm@restore@pkg
+  \fi
+  % -----------------------
+  \Gm@changelayout}
+
+
+
+% ----------------------------------------------------------------------------
+% 1. Variables
+% ----------------------------------------------------------------------------
+\clist_new:N \l__geostack_options_clist
+\clist_new:N \l__geostack_defaults_clist
+\bool_new:N  \l__geostack_patch_bool
+
+% ----------------------------------------------------------------------------
+% 2. Helper: Synchronize Physical Paper Size
+% ----------------------------------------------------------------------------
+\cs_new_protected:Nn \__geostack_sync_physical_size:
+  {
+    \setlength{\paperwidth}{\the\Gm@layoutwidth}
+    \setlength{\paperheight}{\the\Gm@layoutheight}
+    
+    % Sync PDF driver dimensions
+    \cs_if_exist:NT \pdfpagewidth
+      {
+        \setlength{\pdfpagewidth}{\paperwidth}
+        \setlength{\pdfpageheight}{\paperheight}
+      }
+    \cs_if_exist:NT \pagewidth
+      {
+        \setlength{\pagewidth}{\paperwidth}
+        \setlength{\pageheight}{\paperheight}
+      }
+    \cs_if_exist:NT \stockwidth
+      {
+        \setlength{\stockwidth}{\paperwidth}
+        \setlength{\stockheight}{\paperheight}
+      }
+      
+    % Inform geometry of layout changes (internal recalculations)
+    \cs_if_exist:cT { Gm@changelayout }
+      {
+        \use:c { Gm@changelayout }
+      }
   }
-}
 
-% Change the physical paper (stock) size
-% Works with pdfLaTeX, XeLaTeX and LuaLaTeX
-% ------------------------------------------------------------
-% \@ss@setpdfpagesize{<height>}{<width>}
-% Low-level helper: syncs engine/LaTeX dimensions with the requested
-% physical stock size.
-% Sets (if defined): \pdfpageheight/\pdfpagewidth, \pageheight/\pagewidth,
-% and LaTeX's \paperheight/\paperwidth plus \stockheight/\stockwidth.
-% Args:
-%   #1  height dimension (e.g., 297mm)
-%   #2  width  dimension (e.g., 210mm)
-% Notes: called after computing full stock size from geometry.
-% ------------------------------------------------------------
-\newcommand*{\@ss@setpdfpagesize}[2]{%
-  \@ifundefined{pdfpageheight}{}{\pdfpageheight=#1}%
-  \@ifundefined{pdfpagewidth}{}{\pdfpagewidth=#2}%
-  \@ifundefined{pageheight}{}{\pageheight=#1}%
-  \@ifundefined{pagewidth}{}{\pagewidth=#2}%
-  \paperheight=#1\stockheight=#1%
-  \paperwidth=#2\stockwidth=#2%
-}
+% ----------------------------------------------------------------------------
+% 3. Main Environment: newstocksize
+% ----------------------------------------------------------------------------
+\NewDocumentCommand {\newstocksize } { m }
+  {
+    % --- STEP 1: Process 'keepmargins' ---
+    \clist_set:Nn \l__geostack_options_clist { #1 }
+    \clist_clear:N \l__geostack_defaults_clist
+    
+    \clist_if_in:NnTF \l__geostack_options_clist { keepmargins }
+      {
+        % Capture the CURRENT margins before \newgeometry wipes them.
+        % We expand the internal geometry macros to get the current values.
+        \clist_put_right:Nx \l__geostack_defaults_clist { lmargin = \use:c{Gm@lmargin} }
+        \clist_put_right:Nx \l__geostack_defaults_clist { rmargin = \use:c{Gm@rmargin} }
+        \clist_put_right:Nx \l__geostack_defaults_clist { tmargin = \use:c{Gm@tmargin} }
+        \clist_put_right:Nx \l__geostack_defaults_clist { bmargin = \use:c{Gm@bmargin} }
+        
+        % Remove 'keepmargins' from the list passed to \newgeometry
+        \clist_remove_all:Nn \l__geostack_options_clist { keepmargins }
+      }
+      { }
+      
+    % Merge the calculated defaults with the user's explicit options
+    \clist_put_right:NV \l__geostack_defaults_clist \l__geostack_options_clist
+    
+    % --- STEP 2: Change Geometry ---
+    % \newgeometry (patched) will automatically push the OLD state to the stack.
+    \exp_args:NV \newgeometry \l__geostack_defaults_clist
+    
+    % --- STEP 3: Sync Physical Size ---
+    \__geostack_sync_physical_size:
+  }
 
-% ------------------------------------------------------------
-% Internal stack depth for nested stock-size changes (LIFO).
-% Each \pdfsavegeometry increases it; \pdfrestoregeometry decreases it.
-% ------------------------------------------------------------
-\newcounter{@ss@cnt}
-% ------------------------------------------------------------
-% \pdfsavegeometry{<geometry key=val list>}
-% Push a new stock/page size while preserving current state.
-% Steps:
-%   1) Save current full stock size (width/height) and margins.
-%   2) Increment internal stack counter and save a geometry profile.
-%   3) Optionally preserve previous margins via key `keepmargins` (default true).
-%   4) Apply \newgeometry{<...>} with the user-supplied keys.
-%   5) Recompute and set the new physical stock size.
-% Argument:
-%   <geometry key=val list> — passed to \newgeometry, e.g.:
-%     paper=letter, keepmargins
-%     paper=210mm:297mm, margin=2cm
-% Usage:
-%   \pdfsavegeometry{paper=a4paper, keepmargins}
-%   ... content ...
-%   \pdfrestoregeometry
-% ------------------------------------------------------------
-\newcommand*{\pdfsavegeometry}[1]{%
-  \expandafter\edef\csname @sspw@\arabic{@ss@cnt}\endcsname%
-                {\the\dimexpr\Gm@lmargin+\Gm@width+\Gm@rmargin\relax}%
-  \expandafter\edef\csname @ssph@\arabic{@ss@cnt}\endcsname%
-                {\the\dimexpr\Gm@tmargin+\Gm@height+\Gm@bmargin\relax}%
-  \stepcounter{@ss@cnt}%
-  \savegeometry{@ss@cnt@\arabic{@ss@cnt}}%
-  \newdimen\@tempdimd%
-  \@tempdima=\Gm@lmargin\@tempdimb=\Gm@rmargin%
-  \@tempdimc=\Gm@tmargin\@tempdimd=\Gm@bmargin%
-  \define@key{Gm}{keepmargins}[true]{\setkeys{Gm}{lmargin=\the\@tempdima,
-          rmargin=\the\@tempdimb, tmargin=\the\@tempdimc, bmargin=\the\@tempdimd
-  }}%
-  \restoregeometry%
-  \newgeometry{#1}%
-  \edef\@sspw{\the\dimexpr\Gm@lmargin+\Gm@width+\Gm@rmargin\relax}%
-  \edef\@ssph{\the\dimexpr\Gm@tmargin+\Gm@height+\Gm@bmargin\relax}%
-  \@ss@setpdfpagesize{\@ssph}{\@sspw}%
-}
+\NewDocumentCommand {\restorestocksize } {}
+  {
+    % --- STEP 4: Restore Geometry ---
+    % \restoregeometry (patched) will automatically pop the state from the stack.
+    \restoregeometry
+    
+    % --- STEP 5: Sync Physical Size (Restored) ---
+    \__geostack_sync_physical_size:
+  }
 
-% ------------------------------------------------------------
-% \pdfrestoregeometry
-% Pop (restore) the previous geometry/stock size from the stack.
-% Loads the saved geometry profile for the current depth, decrements
-% the counter, and reapplies the previously saved stock size.
-% Arguments: none
-% ------------------------------------------------------------
-\newcommand*{\pdfrestoregeometry}{%
-  \loadgeometry{@ss@cnt@\arabic{@ss@cnt}}%
-  \addtocounter{@ss@cnt}{-1}%
-  \@ss@setpdfpagesize{\csname @ssph@\arabic{@ss@cnt}\endcsname}%
-                     {\csname @sspw@\arabic{@ss@cnt}\endcsname}%
-}
+% ----------------------------------------------------------------------------
+% 4. Package Options
+% ----------------------------------------------------------------------------
 
-\newcommand*{\newstocksize}{\pdfsavegeometry}
-\newcommand*{\restorestocksize}{\pdfrestoregeometry}
+\keys_define:nn { stocksize }
+  {
+    patch-geometry .bool_set:N = \l__geostack_patch_bool,
+    patch-geometry .default:n = true,
+  }
 
+\ProcessKeysPackageOptions { stocksize }
+
+% If requested, patch standard commands to always sync physical size
+\bool_if:NT \l__geostack_patch_bool
+  {
+    \apptocmd{\newgeometry}
+      {\__geostack_sync_physical_size:}
+      {}{\PackageWarning{stocksize}{Failed to patch newgeometry}}
+      
+    \apptocmd{\restoregeometry}
+      {\__geostack_sync_physical_size:}
+      {}{\PackageWarning{stocksize}{Failed to patch restoregeometry}}
+      
+    \apptocmd{\loadgeometry}
+      {\__geostack_sync_physical_size:}
+      {}{\PackageWarning{stocksize}{Failed to patch loadgeometry}}
+  }
+
+\endinput
